@@ -1,107 +1,76 @@
-import { Component } from "react"
 import { Searchbar } from "./Searchbar/Searchbar";
 import { ImageGallery } from "./ImageGallery/ImageGallery";
 import { Button } from "./Button/Button";
 import { fetchImages } from "utils/pixabay-api";
 import { Notify } from "notiflix";
 import { Loader } from "./Loader/Loader";
+import { useEffect, useState } from "react";
 
-export class App extends Component {
+export const App = () => {
 
-  state = {
-    query: '',
-    images: [],
-    page: 1,
-    totalHits: 0,
-    isLoading: false,
-    loadMore: false
-  };
 
-  async componentDidUpdate(_, prevState) {
-    const { query, page } = this.state;
+  const [query, setQuery] = useState('');
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalHits, setTotalHits] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadMore, setLoadMore] = useState(false);
 
-    if (prevState.query !== query || prevState.page !== page) {
-      try {
-        this.setState({
-          isLoading: true,
-          loadMore: false
-        });
-
-        const { totalHits, hits } = await fetchImages(query, page);
-
-        if (totalHits === 0) {
-          Notify.failure('Nothing was found for your request');
-          this.setState({
-            isLoading: false,
-            loadMore: false
-          });
-          return;
-        }
-
-        if (query === '') {
-          this.setState({
-            isLoading: false,
-            loadMore: false
-          });
-          return;
-        }
-
-        this.setState(prevState => ({
-          images: page === 1
-            ? hits
-            : [...prevState.images, ...hits],
-
-          totalHits: page === 1
-            ? totalHits - hits.length
-            : totalHits - [...prevState.images, ...hits].length,
-
-          loadMore: true
-        }));
-
-        this.setState({
-          isLoading: false
-        });
-      } catch (error) {
-        Notify.failure(`Oops! Something went wrong! ${error}`);
-        console.log(error);
-      }
+  useEffect(() => {
+    if (!query) {
+      return;
     }
-  }
 
-  onSubmit = (query) => {
+    setIsLoading(true);
+    setLoadMore(false);
 
-    if (this.state.query === query) 
-    return;
+    const fetchData = async () => {
+      const { hits, totalHits } = await fetchImages(query, page);
 
-    this.setState({ 
-      query, 
-      page: 1,
-      images: []
+      if (totalHits === 0) {
+        Notify.error('Nothing was found for your request');
+        setIsLoading(false);
+        setLoadMore(false);
+        return;
+      }
+
+      setImages(prevImages => (page === 1 ? hits : [...prevImages, ...hits]));
+      setTotalHits(prevTotalHits =>
+        page === 1 ? totalHits - hits.length : prevTotalHits - hits.length
+        
+      );
+      setIsLoading(false);
+      setLoadMore(true);
+    };
+
+    fetchData().catch(error => {
+      Notify.error(`Oops! Something went wrong! ${error}`);
+      setIsLoading(false);
+      setLoadMore(true);
     });
+  }, [page, query]);
 
-  }
 
-  handleLoadMore = () => {
-    this.setState(prevState => (
-      {
-        isLoading: true,
-        images: [...this.state.images],
-        page: prevState.page + 1,
-        loadMore: false
-      }));
-  };
 
-  render() {
-
-    const { images, isLoading, loadMore } = this.state;
-
-    return (
-      <>
-        <Searchbar onSubmit={this.onSubmit} />
-        {images.length !== 0 && <ImageGallery images={images} />}
-        {loadMore && <Button onLoadMore={this.handleLoadMore} />}
-        {isLoading && <Loader />}
-      </>
-    );
-  }
+const onSubmit = (query) => {
+  setQuery(query);
+  setPage(1);
+  setImages([]);
 }
+
+const handleLoadMore = () => {
+  setPage(prevPage => prevPage + 1);
+  setLoadMore(false);
+};
+
+
+return (
+  <>
+    <Searchbar onSubmit={onSubmit} />
+    {images.length !== 0 && <ImageGallery images={images} />}
+    {loadMore && <Button onLoadMore={handleLoadMore} />}
+    {isLoading && <Loader />}
+  </>
+);
+}
+

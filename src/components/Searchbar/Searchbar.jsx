@@ -1,47 +1,40 @@
 import { Notify } from "notiflix";
-import { Component } from "react"
 import css from './Searchbar.module.css';
+import { useState } from "react";
 
-export class Searchbar extends Component {
-    state = {
-        query: ''
-    };
+export const Searchbar = ({     onSubmit }) => {
+    // state = {
+    //     query: ''
+    // };
+
+    const [query, setQuery] = useState('')
 
 
-    handleSubmit = (event) => {
+   const handleSubmit = (event) => {
         event.preventDefault();
-
-        const { query } = this.state;
-        const { onSubmit } = this.props;
 
         if (query.trim() === '') {
             Notify.info('Please enter some value to search');
             
         }
-
         onSubmit(query);
-
     };
 
-    handleSearchChange = (event) => {
-        this.setState(
-            { query: event.currentTarget.value.toLowerCase() }
-        );
+    const handleSearchChange = (event) => {
+        setQuery(event.currentTarget.value.toLowerCase());
     };
-
-    render() {
 
         return (
             <header className={css.searchbar}>
-                <form className={css.form} onSubmit={this.handleSubmit}>
+                <form className={css.form} onSubmit={handleSubmit}>
                     <input
                         className={css.formInput}
-                        value={this.query}
+                        value={query}
                         type="text"
                         autoComplete="off"
                         autoFocus
                         placeholder="Search images and photos"
-                        onChange={this.handleSearchChange}
+                        onChange={handleSearchChange}
                     />
                     <button type="submit" className={css.searchButton}>
                         {/* <span className="button-label">Search</span> */}
@@ -52,5 +45,4 @@ export class Searchbar extends Component {
             </header>
         );
     }
-}
 
