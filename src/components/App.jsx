@@ -34,11 +34,7 @@ export const App = () => {
         return;
       }
 
-      if (query === '') {
-        setIsLoading(false);
-        setLoadMore(false);
-        return;
-      }
+      
 
       setImages(prevImages => (page === 1 ? hits : [...prevImages, ...hits]));
       setTotalHits(prevTotalHits =>
@@ -52,7 +48,6 @@ export const App = () => {
     fetchData().catch(error => {
       Notify.error(`Oops! Something went wrong! ${error}`);
       setIsLoading(false);
-      setLoadMore(true);
     });
   }, [page, query]);
 
@@ -62,6 +57,12 @@ const onSubmit = (query) => {
   setQuery(query);
   setPage(1);
   setImages([]);
+
+  if (query === '') {
+    setIsLoading(false);
+    setLoadMore(false);
+    return;
+  }
 }
 
 const handleLoadMore = () => {
