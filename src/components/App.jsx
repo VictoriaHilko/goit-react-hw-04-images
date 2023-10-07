@@ -34,6 +34,12 @@ export const App = () => {
         return;
       }
 
+      if (query === '') {
+        setIsLoading(false);
+        setLoadMore(false);
+        return;
+      }
+
       setImages(prevImages => (page === 1 ? hits : [...prevImages, ...hits]));
       setTotalHits(prevTotalHits =>
         page === 1 ? totalHits - hits.length : prevTotalHits - hits.length

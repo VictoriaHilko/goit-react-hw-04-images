@@ -15,7 +15,6 @@ export const Searchbar = ({     onSubmit }) => {
 
         if (query.trim() === '') {
             Notify.info('Please enter some value to search');
-            
         }
         onSubmit(query);
     };
