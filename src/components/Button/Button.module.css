@@ -1,0 +1,21 @@
+.loadMoreButton {
+  width: 100px;
+  height: 35px;
+  background-color: #fff;
+  border: 1px solid tomato;
+  border-radius: 10px;
+  display: block;
+  margin: 0 auto;
+  letter-spacing: .04em;
+  font-size: 14px;
+  font-weight: 200;
+  line-height: 2;
+  margin-bottom: 50px;
+}
+
+.loadMoreButton:hover,
+.loadMoreButton:focus {
+  border: 1px solid tomato;
+  background-color: tomato;
+  color: #fff;
+}
